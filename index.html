@@ -12,7 +12,7 @@
 
   <style>
     :root{
-      /* Tokens base para integração com KOB_THEME + Roda-Viva */
+      /* Tokens base */
       --grad-a:#00f5ff;
       --grad-b:#ff4bff;
       --bg:#050811;
@@ -20,14 +20,12 @@
       --ink:#e4ecff;
       --muted:#9aa4c8;
 
-      /* Tokens KOBLLUX de voz/tema (podem ser sobrescritos pelo patch) */
       --kob-voice-primary:#00f5ff;
       --kob-voice-secondary:#ff4bff;
       --kob-voice-accent:#ffffff;
       --kob-voice-bg-soft:rgba(0,245,255,.12);
       --kob-voice-glow:0 0 18px rgba(0,245,255,.60);
 
-      /* Derivados internos do app */
       --text: var(--ink);
       --accent: var(--kob-voice-primary);
       --accent-soft: rgba(0,245,255,.18);
@@ -104,7 +102,7 @@
       z-index:1;
     }
 
-    /* PAINEL OIDUAL V2 – sanfona básica */
+    /* PAINEL OIDUAL · CARD SANFONÁVEL */
     .oidual-panel-shell{
       margin-top:18px;
       width:100%;
@@ -494,7 +492,6 @@
       opacity:1;
     }
 
-    /* Badge de arquétipo detectado (placeholder) */
     .archetype-badge{
       position:absolute;
       left:10px;
@@ -852,7 +849,6 @@
     .lv-callout.lv-question{border-color:#7b88ff;color:#dde0ff;}
     .lv-callout.lv-aside{border-style:dashed;color:#c8c8d8;}
 
-    /* Livro Vivo – Botões */
     .lv-btn{
       display:inline-flex;
       align-items:center;
@@ -880,7 +876,6 @@
       box-shadow:0 0 14px rgba(0,255,255,.6);
     }
 
-    /* Livro Vivo – Tabelista */
     .md-tabelista{
       margin:8px 0;
       padding:8px 9px;
@@ -888,6 +883,43 @@
       background:rgba(0,0,0,.55);
       border:1px solid rgba(255,255,255,.08);
       font-size:.8rem;
+    }
+
+    /* KDX · CARDS COLAPSÁVEIS GENÉRICOS */
+    .kdx-card-collapsible {
+      position: relative;
+    }
+    .kdx-card-header {
+      cursor: pointer;
+      position: relative;
+    }
+    .kdx-card-header::after {
+      content: "⌃";
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%) rotate(180deg);
+      font-size: .78rem;
+      opacity: .6;
+      transition: transform .22s ease, opacity .22s ease;
+    }
+    .kdx-card-collapsible.kdx-collapsed .kdx-card-header::after {
+      transform: translateY(-50%) rotate(0deg);
+      opacity: .9;
+    }
+    .kdx-card-body {
+      max-height: 1000px;
+      overflow: hidden;
+      transition:
+        max-height .28s ease,
+        opacity .22s ease,
+        transform .22s ease;
+    }
+    .kdx-card-collapsible.kdx-collapsed .kdx-card-body {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-4px);
+      pointer-events: none;
     }
 
     /* Ajuste para telas menores */
@@ -905,7 +937,6 @@
   <button id="themeToggle" type="button" aria-label="Alternar tema"></button>
 
   <div class="svg-container" aria-hidden="true">
-    <!-- Orb simbólico simples -->
     <svg viewBox="0 0 200 200">
       <defs>
         <radialGradient id="orbGrad" cx="50%" cy="50%" r="60%">
@@ -924,9 +955,9 @@
 
   <div id="assistantName">dual-Infodose · Chat Cinemático 78 · Roda-Viva</div>
 
-  <!-- Painel OiDual · sanfona -->
+  <!-- Painel OiDual · marcado como colapsável -->
   <section class="oidual-panel-shell">
-    <div class="oidual-card">
+    <div class="oidual-card" data-collapsible="true">
       <div class="oidual-header">
         <div>
           <div class="oidual-title">Painel OiDual · Portal de Entrada</div>
@@ -984,8 +1015,8 @@
     </div>
   </section>
 
-  <!-- Card do Dia -->
-  <section class="daily-card" id="dailyCard">
+  <!-- Card do Dia · colapsável -->
+  <section class="daily-card" id="dailyCard" data-collapsible="true">
     <div class="daily-top">
       <div>
         <div class="daily-label">Card do Dia · Infodose</div>
@@ -1004,8 +1035,8 @@
     </div>
   </section>
 
-  <!-- Trilhas e Vídeos -->
-  <section class="videos-section">
+  <!-- Trilhas e Vídeos · colapsável -->
+  <section class="videos-section" data-collapsible="true">
     <div class="videos-header">
       <h2>Trilhas e ativações</h2>
       <span>Clique para puxar pro chat</span>
@@ -1151,7 +1182,6 @@
   <!-- Input + Botões -->
   <div class="input-container" id="inputContainer">
     <button id="voiceBtn" type="button" aria-label="Gravar voz">
-      <!-- mic ícone simples -->
       <svg viewBox="0 0 24 24">
         <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
         <path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>
@@ -1170,7 +1200,7 @@
     </button>
   </div>
 
-  <!-- Login / placeholder (opcional) -->
+  <!-- Login / placeholder (se quiser usar depois) -->
   <div class="login-container" id="loginContainer">
     <h2>Entrar no Portal</h2>
     <p>Use um apelido para personalizar as respostas do Chat Cinemático.</p>
@@ -1182,9 +1212,7 @@
   <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
 
   <script>
-    // ==========================
     // PARTICLES
-    // ==========================
     function initParticles(){
       if(typeof particlesJS === "undefined") return;
       particlesJS("particles-js",{
@@ -1226,21 +1254,14 @@
       });
     }
 
-    // ==========================
-    // STATE BÁSICO
-    // ==========================
+    // STATE
     const state = {
-      iaConfig: {
-        webhookUrl: "",
-        token: "",
-        profile: ""
-      },
+      iaConfig: { webhookUrl:"", token:"", profile:"" },
       lastClickedBlockId: null,
       speakingBlockId: null,
       recognition: null,
       recognizing: false
     };
-
     const LS_KEY = "dualChat78_iaConfig";
 
     function loadIaConfig(){
@@ -1266,14 +1287,11 @@
       }
     }
 
-    // ==========================
-    // TEMA
-    // ==========================
+    // THEME
     function toggleTheme(){
       const body = document.body;
       const isAlt = body.classList.toggle("theme-alt");
       if(isAlt){
-        // levemente mais escuro / violeta
         document.documentElement.style.setProperty("--grad-a","#281dff");
         document.documentElement.style.setProperty("--grad-b","#ff4bff");
       }else{
@@ -1282,9 +1300,13 @@
       }
     }
 
-    // ==========================
-    // UTIL · TTS
-    // ==========================
+    function initThemeToggle(){
+      const btn = document.getElementById("themeToggle");
+      if(!btn) return;
+      btn.addEventListener("click", toggleTheme);
+    }
+
+    // TTS
     function speakText(text){
       if(!("speechSynthesis" in window)) return;
       window.speechSynthesis.cancel();
@@ -1295,9 +1317,7 @@
       window.speechSynthesis.speak(utter);
     }
 
-    // ==========================
     // CHAT · RENDER
-    // ==========================
     function createBlock(text, type="middle", archetypeLabel=""){
       const wrapper = document.getElementById("pagesWrapper");
       const block = document.createElement("div");
@@ -1325,17 +1345,13 @@
       ttsBtn.title = "Ouvir bloco";
       block.appendChild(ttsBtn);
 
-      // Event: click no bloco → 1º clique fala, 2º clique envia
       block.addEventListener("click", (ev)=>{
-        // se clicou no botão de TTS, só fala
         if(ev.target === ttsBtn){
           speakText(text);
           return;
         }
-
         const currentId = block.dataset.blockId;
         if(state.lastClickedBlockId === currentId){
-          // segundo clique → enviar pra IA
           state.lastClickedBlockId = null;
           block.classList.remove("clicked");
           handleSend(text, "block");
@@ -1359,23 +1375,17 @@
     function createUserBlock(text){
       return createBlock(text, "user-pulse", "Usuário");
     }
-
     function createIaBlockFromText(text){
       return createBlock(text, "middle", "Cinemático 78");
     }
 
-    // ==========================
-    // CHAT · ENVIO / IA
-    // ==========================
+    // WEBHOOK
     async function callWebhook(prompt, sourceMeta){
       const { webhookUrl, token, profile } = state.iaConfig;
       if(!webhookUrl) return { ok:false, text:"Webhook não configurado." };
-
       try{
         const headers = { "Content-Type":"application/json" };
-        if(token){
-          headers["Authorization"] = token;
-        }
+        if(token){ headers["Authorization"] = token; }
 
         const body = {
           prompt,
@@ -1399,7 +1409,6 @@
           const txt = json.text || json.reply || json.message;
           return { ok:true, text:String(txt) };
         }
-
         return { ok:false, text:"Webhook respondeu sem campo de texto." };
       }catch(e){
         console.error(e);
@@ -1459,16 +1468,13 @@ Detalhe:
 ${result.text || "sem detalhes"}`;
       }
 
-      // substitui texto do bloco pendente
       const body = pendingBlock.querySelector("div");
       if(body){
         body.textContent = finalText;
       }
     }
 
-    // ==========================
-    // VÍDEOS · HERO + INTENÇÃO
-    // ==========================
+    // VÍDEOS
     function initVideosRail(){
       const hero = document.getElementById("heroVideo");
       const rail = document.getElementById("videoRail");
@@ -1498,31 +1504,17 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       });
     }
 
-    // ==========================
-    // THEME TOGGLE
-    // ==========================
-    function initThemeToggle(){
-      const btn = document.getElementById("themeToggle");
-      if(!btn) return;
-      btn.addEventListener("click", toggleTheme);
-    }
-
-    // ==========================
-    // FOOTER · COLAPSAR CHAT
-    // ==========================
+    // FOOTER / COLAPSO
     function initFooterToggle(){
       const footer = document.getElementById("footerToggle");
       const response = document.getElementById("response");
       if(!footer || !response) return;
-
       footer.addEventListener("click",()=>{
         response.classList.toggle("collapsed");
       });
     }
 
-    // ==========================
-    // IA CONFIG PANEL
-    // ==========================
+    // IA CONFIG
     function initIaConfig(){
       const toggleBtn = document.getElementById("toggleIaConfigBtn");
       const panel     = document.getElementById("iaConfigPanel");
@@ -1535,7 +1527,6 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
 
       if(!toggleBtn || !panel) return;
 
-      // preencher com valor salvo
       webhook.value = state.iaConfig.webhookUrl || "";
       token.value   = state.iaConfig.token      || "";
       profile.value = state.iaConfig.profile    || "";
@@ -1578,12 +1569,11 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       });
     }
 
-    // ==========================
-    // INPUT / SEND / ENTER
-    // ==========================
+    // INPUT / SEND
     function initInput(){
       const input = document.getElementById("userInput");
       const send  = document.getElementById("sendBtn");
+      if(!input || !send) return;
 
       send.addEventListener("click", ()=>handleSend());
       input.addEventListener("keydown",(ev)=>{
@@ -1594,9 +1584,7 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       });
     }
 
-    // ==========================
-    // VOZ (SPEECH RECOGNITION)
-    // ==========================
+    // VOZ
     function initVoice(){
       const btn = document.getElementById("voiceBtn");
       const input = document.getElementById("userInput");
@@ -1642,9 +1630,38 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       });
     }
 
-    // ==========================
-    // BOOT
-    // ==========================
+    // KDX · SANFONA GLOBAL
+    function initKdxGlobalCollapsibles() {
+      const cards = document.querySelectorAll('[data-collapsible="true"]');
+      cards.forEach(card => {
+        if (card.dataset.kdxCollapsibleInit === '1') return;
+        card.dataset.kdxCollapsibleInit = '1';
+
+        const children = Array.from(card.children);
+        if (!children.length) return;
+
+        const header = children[0];
+        header.classList.add('kdx-card-header');
+
+        let body = card.querySelector('.kdx-card-body');
+        if (!body) {
+          body = document.createElement('div');
+          body.className = 'kdx-card-body';
+          for (let i = 1; i < children.length; i++) {
+            body.appendChild(children[i]);
+          }
+          card.appendChild(body);
+        }
+
+        card.classList.add('kdx-card-collapsible');
+        card.classList.add('kdx-collapsed'); // começam fechados
+
+        header.addEventListener('click', () => {
+          card.classList.toggle('kdx-collapsed');
+        });
+      });
+    }
+
     document.addEventListener("DOMContentLoaded", ()=>{
       loadIaConfig();
       initParticles();
@@ -1654,8 +1671,8 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       initInput();
       initVoice();
       initVideosRail();
+      initKdxGlobalCollapsibles();
 
-      // só pra dar um pulso visual no bootText
       const boot = document.getElementById("bootText");
       if(boot) boot.classList.add("pulse");
     });
