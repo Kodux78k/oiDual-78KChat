@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>dual-Infodose Chat Cinematográfico · Roda-Viva</title>
+
+  <meta name="theme-color" content="#050811" />
+
+  <!-- Fonte básica -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" />
+
+  <style>
+    :root{
+      /* Tokens base para integração com KOB_THEME + Roda-Viva */
+      --grad-a:#00f5ff;
+      --grad-b:#ff4bff;
+      --bg:#050811;
+      --panel:rgba(5,8,17,.96);
+      --ink:#e4ecff;
+      --muted:#9aa4c8;
+
+      /* Tokens KOBLLUX de voz/tema (podem ser sobrescritos pelo patch) */
+      --kob-voice-primary:#00f5ff;
+      --kob-voice-secondary:#ff4bff;
+      --kob-voice-accent:#ffffff;
+      --kob-voice-bg-soft:rgba(0,245,255,.12);
+      --kob-voice-glow:0 0 18px rgba(0,245,255,.60);
+
+      /* Derivados internos do app */
+      --text: var(--ink);
+      --accent: var(--kob-voice-primary);
+      --accent-soft: rgba(0,245,255,.18);
+      --accent-pink: var(--kob-voice-secondary);
+      --danger:#ff4b6b;
+
+      --radius-card:18px;
+      --radius-pill:999px;
+      --shadow-soft:0 18px 40px rgba(0,0,0,.65);
+      --fast:.25s;
+      --med:.6s;
+      --slow:1.4s;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;}
+    html,body{width:100%;height:100%;}
+
+    body{
+      font-family:"Montserrat",system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      background:radial-gradient(circle at 20% 20%,var(--grad-a),var(--bg) 60%,#000000 100%);
+      color:var(--text);
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      padding:16px 16px 24px;
+      overflow-x:hidden;
+      overflow-y:auto;
+      position:relative;
+    }
+
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(circle at 10% 0%,rgba(0,255,255,.16) 0,transparent 50%),
+        radial-gradient(circle at 90% 100%,rgba(255,0,255,.12) 0,transparent 60%);
+      opacity:.7;
+      pointer-events:none;
+      mix-blend-mode:screen;
+    }
+
+    #particles-js{
+      position:fixed;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      opacity:.65;
+    }
+
+    .svg-container{
+      position:relative;
+      margin-top:40px;
+      width:140px;
+      height:140px;
+      filter:drop-shadow(0 0 25px rgba(0,255,255,.35));
+      animation:orbFloat 12s ease-in-out infinite;
+      z-index:1;
+    }
+    .svg-container svg{width:100%;height:100%;object-fit:contain;}
+
+    @keyframes orbFloat{
+      0%,100%{transform:translateY(0) scale(1);}
+      50%{transform:translateY(-8px) scale(1.03);}
+    }
+
+    #assistantName{
+      margin-top:8px;
+      font-size:1.05rem;
+      font-weight:600;
+      text-align:center;
+      opacity:.9;
+      z-index:1;
+    }
+
+    /* PAINEL OIDUAL V2 – sanfona básica */
+    .oidual-panel-shell{
+      margin-top:18px;
+      width:100%;
+      max-width:520px;
+      z-index:1;
+    }
+    .oidual-card{
+      border-radius:var(--radius-card);
+      background:rgba(5,8,17,.9);
+      box-shadow:var(--shadow-soft);
+      border:1px solid rgba(255,255,255,.06);
+      padding:12px 12px 10px;
+    }
+    .oidual-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:8px;
+    }
+    .oidual-title{
+      font-size:.92rem;
+      font-weight:600;
+    }
+    .oidual-pill{
+      padding:3px 9px;
+      border-radius:999px;
+      background:rgba(0,0,0,.7);
+      border:1px solid rgba(0,255,255,.5);
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+    }
+
+    .oidual-accordion details{
+      border-radius:12px;
+      background:rgba(0,0,0,.7);
+      border:1px solid rgba(255,255,255,.08);
+      margin-top:6px;
+      overflow:hidden;
+    }
+    .oidual-accordion summary{
+      list-style:none;
+      padding:8px 10px;
+      cursor:pointer;
+      font-size:.82rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    .oidual-accordion summary::-webkit-details-marker{display:none;}
+    .oidual-accordion summary span.badge{
+      padding:2px 7px;
+      border-radius:999px;
+      font-size:.7rem;
+      background:rgba(0,255,255,.2);
+      border:1px solid rgba(0,255,255,.6);
+    }
+    .oidual-accordion .oidual-body{
+      padding:6px 10px 8px;
+      font-size:.78rem;
+      opacity:.9;
+    }
+    .oidual-accordion ul{
+      margin-top:4px;
+      padding-left:16px;
+      list-style:disc;
+    }
+    .oidual-accordion li{
+      margin:2px 0;
+    }
+
+    /* CARD DO DIA */
+    .daily-card{
+      margin-top:18px;
+      width:100%;
+      max-width:520px;
+      border-radius:var(--radius-card);
+      background:radial-gradient(circle at 0 0,rgba(0,255,255,.18),rgba(0,0,0,.92));
+      padding:12px 14px;
+      border:1px solid rgba(0,255,255,.35);
+      box-shadow:var(--shadow-soft);
+      z-index:1;
+    }
+    .daily-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .daily-label{
+      font-size:.72rem;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      opacity:.8;
+    }
+    .daily-tag{
+      padding:3px 9px;
+      border-radius:999px;
+      background:rgba(0,0,0,.8);
+      border:1px solid rgba(255,255,255,.25);
+      font-size:.72rem;
+    }
+    .daily-main-title{
+      font-size:.98rem;
+      font-weight:600;
+      margin-bottom:4px;
+    }
+    .daily-sub{
+      font-size:.78rem;
+      opacity:.88;
+    }
+    .daily-footer{
+      margin-top:6px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:6px;
+      font-size:.76rem;
+      opacity:.9;
+    }
+    .daily-pill{
+      padding:2px 9px;
+      border-radius:999px;
+      border:1px solid rgba(0,255,255,.55);
+      font-size:.7rem;
+    }
+
+    /* VÍDEOS – HERO + RAIL */
+    .videos-section{
+      margin-top:18px;
+      width:100%;
+      max-width:520px;
+      z-index:1;
+    }
+    .videos-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      margin-bottom:8px;
+    }
+    .videos-header h2{
+      font-size:.9rem;
+      text-transform:uppercase;
+      letter-spacing:.16em;
+      opacity:.86;
+    }
+    .videos-header span{
+      font-size:.75rem;
+      opacity:.7;
+    }
+    .video-hero{
+      position:relative;
+      width:100%;
+      border-radius:var(--radius-card);
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.15);
+      box-shadow:var(--shadow-soft);
+      margin-bottom:10px;
+      background:#000;
+      aspect-ratio:16/9;
+    }
+    .video-hero iframe{
+      width:100%;
+      height:100%;
+      border:0;
+      display:block;
+    }
+    .video-rail{
+      display:flex;
+      gap:10px;
+      overflow-x:auto;
+      padding-bottom:4px;
+    }
+    .video-card{
+      flex:0 0 180px;
+      border-radius:14px;
+      overflow:hidden;
+      background:rgba(0,0,0,.8);
+      border:1px solid rgba(255,255,255,.1);
+      cursor:pointer;
+      transition:transform var(--fast), box-shadow var(--fast), border-color var(--fast), background var(--fast);
+    }
+    .video-card:hover{
+      transform:translateY(-2px);
+      box-shadow:0 14px 28px rgba(0,0,0,.7);
+      border-color:rgba(0,255,255,.6);
+      background:rgba(0,0,0,.95);
+    }
+    .video-thumb{
+      width:100%;
+      height:100px;
+      background-position:center;
+      background-size:cover;
+      background-repeat:no-repeat;
+    }
+    .video-meta{
+      padding:6px 8px 8px;
+      font-size:.78rem;
+    }
+    .video-title{
+      font-weight:600;
+      margin-bottom:3px;
+    }
+    .video-tag{
+      font-size:.7rem;
+      opacity:.75;
+    }
+    .video-rail::-webkit-scrollbar{height:4px;}
+    .video-rail::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,.45);
+      border-radius:999px;
+    }
+
+    /* CHAT · RENDER RESPONSE */
+    .response-container{
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom:160px;
+      max-height:calc(100vh - 260px);
+      padding:12px;
+      border-radius:20px;
+      background:radial-gradient(circle at 0 0,var(--kob-voice-bg-soft),var(--panel));
+      backdrop-filter:blur(14px) saturate(160%);
+      box-shadow:var(--shadow-soft);
+      overflow-y:auto;
+      z-index:5;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      animation:fadeInUp var(--slow) ease forwards;
+      transition:all var(--fast) ease;
+    }
+
+    .response-container.collapsed{
+      bottom:24px;
+      max-height:none;
+      padding:6px 10px;
+      background:radial-gradient(circle at 0 0,var(--kob-voice-bg-soft),rgba(0,0,0,.95));
+    }
+    .response-container.collapsed .pages-wrapper,
+    .response-container.collapsed .response-controls,
+    .response-container.collapsed #iaConfigPanel{
+      display:none;
+    }
+    .response-container.collapsed .footer-text{
+      margin-top:0;
+      font-size:.78rem;
+      border-radius:999px;
+    }
+    .response-container.collapsed + .input-container{display:none;}
+
+    .pages-wrapper{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+
+    #bootText{
+      font-weight:700;
+      position:relative;
+      letter-spacing:.03em;
+      display:inline-block;
+      white-space:pre-line;
+    }
+    #bootText.pulse::after{
+      content:attr(data-text);
+      position:absolute;
+      inset:0;
+      background:linear-gradient(42deg,var(--kob-voice-primary),var(--kob-voice-secondary));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      filter:blur(4px);
+      opacity:.45;
+      pointer-events:none;
+      animation:pulseGlow 3s ease-in-out infinite;
+    }
+
+    @keyframes fadeInUp{
+      from{opacity:0;transform:translateY(12px);}
+      to{opacity:1;transform:translateY(0);}
+    }
+    @keyframes pulseGlow{
+      0%,100%{opacity:.4;}
+      50%{opacity:.9;}
+    }
+
+    .response-block{
+      margin:.35rem 0;
+      padding:1rem 1.1rem 1.9rem;
+      border-radius:14px;
+      line-height:1.7;
+      font-size:.9rem;
+      position:relative;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.04);
+      transition:
+        box-shadow var(--fast),
+        transform var(--fast),
+        border-color var(--fast),
+        background var(--fast),
+        opacity var(--fast);
+      cursor:pointer;
+    }
+    .response-block:hover{
+      transform:translateY(-1px);
+      box-shadow:0 12px 30px rgba(0,0,0,.7);
+      border-color:rgba(0,255,255,.3);
+    }
+
+    .response-block.intro{
+      background:linear-gradient(135deg,rgba(0,255,255,.18),rgba(0,40,70,.9));
+    }
+    .response-block.middle{
+      background:linear-gradient(135deg,rgba(255,255,255,.04),rgba(6,10,28,.95));
+    }
+    .response-block.ending{
+      background:linear-gradient(135deg,rgba(255,0,255,.18),rgba(40,0,60,.95));
+    }
+    .response-block.user-pulse{
+      background:linear-gradient(135deg,rgba(0,0,0,.85),rgba(0,255,255,.22));
+      border-color:rgba(0,255,255,.6);
+      text-align:right;
+    }
+
+    .response-block.clicked{
+      animation:blockClickPulse .4s ease;
+    }
+    @keyframes blockClickPulse{
+      0%{transform:scale(1);box-shadow:0 0 0 rgba(0,255,255,0);}
+      50%{transform:scale(1.02);box-shadow:0 0 24px rgba(0,255,255,.5);}
+      100%{transform:scale(1);box-shadow:0 0 0 rgba(0,255,255,0);}
+    }
+
+    .response-block strong{color:var(--accent);}
+
+    .response-block h1,
+    .response-block h2,
+    .response-block h3{margin-bottom:.2rem;}
+    .response-block h3{font-size:.95rem;}
+
+    .response-block code{
+      font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+      font-size:.8rem;
+      padding:.15rem .32rem;
+      border-radius:6px;
+      background:rgba(0,0,0,.5);
+    }
+    .response-block pre{
+      max-width:100%;
+      overflow-x:auto;
+      padding:.6rem .7rem;
+      background:rgba(0,0,0,.55);
+      border-radius:8px;
+      font-size:.78rem;
+      margin-top:.4rem;
+    }
+
+    /* Botão TTS no bloco */
+    .block-tts-btn{
+      position:absolute;
+      right:8px;
+      bottom:8px;
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      border:none;
+      background:rgba(0,0,0,.75);
+      color:var(--accent);
+      font-size:.75rem;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:0 0 8px rgba(0,255,255,.4);
+      opacity:.9;
+      transition:transform var(--fast),box-shadow var(--fast),background var(--fast),opacity var(--fast);
+    }
+    .block-tts-btn:hover{
+      transform:translateY(-1px) scale(1.03);
+      box-shadow:0 0 14px rgba(0,255,255,.7);
+      background:rgba(0,0,0,.95);
+      opacity:1;
+    }
+
+    /* Badge de arquétipo detectado (placeholder) */
+    .archetype-badge{
+      position:absolute;
+      left:10px;
+      top:8px;
+      padding:2px 8px;
+      border-radius:999px;
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      background:rgba(0,0,0,.65);
+      border:1px solid rgba(0,255,255,.45);
+      color:#a7ffea;
+      pointer-events:none;
+    }
+
+    .footer-text{
+      margin-top:6px;
+      padding:6px 10px;
+      font-size:.78rem;
+      text-align:center;
+      opacity:.8;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.65);
+      cursor:pointer;
+      transition:opacity var(--fast),transform var(--fast),box-shadow var(--fast),background var(--fast);
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+    }
+    .footer-text span.footer-dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:linear-gradient(45deg,var(--kob-voice-primary),var(--kob-voice-secondary));
+      box-shadow:0 0 12px rgba(0,255,255,.7);
+    }
+    .footer-text:hover{
+      opacity:.95;
+      transform:scale(1.02);
+      box-shadow:0 0 18px rgba(0,255,255,.35);
+      background:rgba(0,0,0,.9);
+    }
+
+    .response-controls{
+      margin-top:6px;
+      padding-top:6px;
+      border-top:1px solid rgba(255,255,255,.12);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .control-buttons{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .icon-btn{
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      border:none;
+      background:rgba(0,0,0,.7);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:background var(--fast),transform var(--fast),opacity var(--fast);
+      opacity:.8;
+      color:var(--accent);
+    }
+    .icon-btn.secondary{color:#e4ecff;}
+    .icon-btn:hover{
+      background:rgba(255,255,255,.12);
+      transform:translateY(-1px);
+      opacity:1;
+    }
+
+    #iaConfigPanel{
+      margin-top:6px;
+      padding:8px 10px;
+      border-radius:16px;
+      background:rgba(0,8,20,.96);
+      border:1px solid rgba(0,255,255,.24);
+      box-shadow:0 8px 24px rgba(0,0,0,.5);
+      color:var(--text);
+      font-size:.78rem;
+      display:none;
+      flex-direction:column;
+      gap:6px;
+    }
+    #iaConfigPanel.active{display:flex;}
+
+    #iaConfigHeader{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+    }
+    #iaConfigHeader span{
+      font-size:.78rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      opacity:.9;
+    }
+
+    .ia-config-body{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      margin-top:4px;
+    }
+    .ia-field{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+    .ia-field label{
+      font-size:.72rem;
+      opacity:.8;
+    }
+    .ia-field input,
+    .ia-field select{
+      width:100%;
+      border-radius:8px;
+      border:1px solid rgba(0,255,255,.3);
+      background:rgba(0,0,0,.7);
+      color:inherit;
+      padding:5px 7px;
+      font-size:.78rem;
+      outline:none;
+    }
+    .ia-field input::placeholder{color:rgba(255,255,255,.38);}
+
+    .ia-actions{
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+      margin-top:4px;
+    }
+
+    .pill-btn{
+      flex:1;
+      border-radius:999px;
+      border:1px solid rgba(0,255,255,.6);
+      background:transparent;
+      padding:5px 0;
+      font-size:.78rem;
+      cursor:pointer;
+      color:var(--accent);
+      transition:background var(--fast),color var(--fast),transform var(--fast);
+    }
+    .pill-btn:hover{
+      background:var(--accent);
+      color:#050515;
+      transform:translateY(-1px);
+    }
+    .pill-btn.secondary{
+      border-color:rgba(255,255,255,.35);
+      color:rgba(255,255,255,.8);
+    }
+    .pill-btn.secondary:hover{
+      background:rgba(255,255,255,.12);
+      color:#fff;
+    }
+
+    .ia-status{
+      font-size:.7rem;
+      opacity:.8;
+      margin-top:2px;
+    }
+    .ia-status.ok{color:#63f8ba;}
+    .ia-status.warn{color:#ffd480;}
+    .ia-status.err{color:var(--danger);}
+
+    .input-container{
+      position:fixed;
+      left:16px;
+      right:16px;
+      bottom:84px;
+      display:flex;
+      gap:8px;
+      align-items:center;
+      z-index:6;
+      transition:opacity var(--fast) ease,transform var(--fast) ease;
+    }
+
+    #userInput{
+      flex:1;
+      min-width:0;
+      padding:11px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,.16);
+      background:rgba(0,0,0,.7);
+      color:inherit;
+      font-size:.95rem;
+      outline:none;
+      transition:border-color var(--fast),background var(--fast),box-shadow var(--fast);
+    }
+    #userInput::placeholder{color:rgba(255,255,255,.35);}
+    #userInput:focus{
+      border-color:rgba(0,255,255,.65);
+      background:rgba(0,0,0,.9);
+      box-shadow:0 0 0 1px rgba(0,255,255,.45);
+    }
+
+    #sendBtn{
+      width:56px;
+      height:56px;
+      border-radius:50%;
+      border:none;
+      background:conic-gradient(from 120deg,var(--kob-voice-primary),var(--kob-voice-secondary),var(--kob-voice-primary));
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:var(--kob-voice-glow);
+      transition:transform var(--fast),box-shadow var(--fast);
+      color:#050515;
+      font-size:1.6rem;
+    }
+    #sendBtn .send-label{transform:translateX(1px);}
+    #sendBtn:hover{
+      transform:translateY(-1px) scale(1.04);
+      box-shadow:0 0 26px rgba(0,255,255,.8);
+    }
+
+    #voiceBtn{
+      width:52px;
+      height:52px;
+      border-radius:50%;
+      border:none;
+      background:rgba(0,0,0,.75);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      box-shadow:0 0 0 1px rgba(255,255,255,.08);
+      transition:transform var(--fast),box-shadow var(--fast),background var(--fast);
+      position:relative;
+      overflow:hidden;
+      color:var(--accent);
+    }
+    #voiceBtn svg{width:70%;height:70%;fill:none;stroke:currentColor;stroke-width:1.8;}
+    #voiceBtn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 0 18px rgba(0,255,255,.45);
+      background:rgba(0,0,0,.95);
+    }
+    #voiceBtn.speaking{
+      background:radial-gradient(circle at 0 0,rgba(0,255,255,.35),rgba(0,0,0,1));
+      box-shadow:0 0 18px rgba(0,255,255,.75);
+      animation:voicePulse 1.4s ease-in-out infinite;
+    }
+    @keyframes voicePulse{
+      0%{box-shadow:0 0 8px rgba(0,255,255,.3);transform:translateY(-1px) scale(1);}
+      50%{box-shadow:0 0 24px rgba(0,255,255,.8);transform:translateY(-1px) scale(1.06);}
+      100%{box-shadow:0 0 8px rgba(0,255,255,.3);transform:translateY(-1px) scale(1);}
+    }
+
+    .login-container{
+      position:fixed;
+      top:50%;
+      left:50%;
+      width:300px;
+      max-width:88vw;
+      transform:translate(-50%,-50%);
+      background:radial-gradient(circle at 0 0,rgba(0,255,255,.2),rgba(0,0,0,.9));
+      border-radius:18px;
+      padding:16px 14px 14px;
+      border:1px solid rgba(0,255,255,.3);
+      backdrop-filter:blur(18px) saturate(180%);
+      box-shadow:var(--shadow-soft);
+      z-index:20;
+      display:none;
+      animation:fadeInUp .4s ease;
+    }
+    .login-container.active{display:block;}
+    .login-container h2{font-size:1rem;margin-bottom:6px;}
+    .login-container p{font-size:.8rem;opacity:.8;margin-bottom:10px;}
+    .login-container input{
+      width:100%;
+      margin-bottom:8px;
+      padding:7px 2px;
+      border:none;
+      border-bottom:1px solid rgba(255,255,255,.35);
+      background:transparent;
+      color:inherit;
+      font-size:.9rem;
+      outline:none;
+    }
+    .login-container input::placeholder{color:rgba(255,255,255,.45);}
+    .login-container button[type="submit"]{
+      margin-top:8px;
+      width:100%;
+      border-radius:999px;
+      border:1px solid var(--accent);
+      background:transparent;
+      color:var(--accent);
+      padding:8px 0;
+      font-size:.9rem;
+      cursor:pointer;
+      transition:background var(--fast),color var(--fast),transform var(--fast);
+    }
+    .login-container button[type="submit"]:hover{
+      background:var(--accent);
+      color:#050515;
+      transform:translateY(-1px);
+    }
+
+    #themeToggle{
+      position:fixed;
+      top:16px;
+      left:16px;
+      width:30px;
+      height:30px;
+      border-radius:50%;
+      border:1px solid rgba(255,255,255,.4);
+      background:radial-gradient(circle at 0 0,rgba(255,255,255,.4),transparent 60%);
+      cursor:pointer;
+      opacity:.7;
+      z-index:10;
+      transition:opacity var(--fast),transform var(--fast),box-shadow var(--fast);
+    }
+    #themeToggle:hover{
+      opacity:1;
+      transform:translateY(-1px);
+      box-shadow:0 0 12px rgba(255,255,255,.7);
+    }
+
+    .response-container::-webkit-scrollbar{width:4px;}
+    .response-container::-webkit-scrollbar-track{background:transparent;}
+    .response-container::-webkit-scrollbar-thumb{
+      background:rgba(255,255,255,.35);
+      border-radius:999px;
+    }
+
+    /* Livro Vivo – Callouts */
+    .lv-callout{
+      margin:.4rem 0;
+      padding:.45rem .6rem;
+      border-radius:10px;
+      font-size:.8rem;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(0,0,0,.45);
+    }
+    .lv-callout.lv-info{border-color:rgba(0,255,255,.5);color:#d7faff;}
+    .lv-callout.lv-warn{border-color:#ffc857;color:#ffebbc;}
+    .lv-callout.lv-success{border-color:#39ffb6;color:#d7ffe9;}
+    .lv-callout.lv-question{border-color:#7b88ff;color:#dde0ff;}
+    .lv-callout.lv-aside{border-style:dashed;color:#c8c8d8;}
+
+    /* Livro Vivo – Botões */
+    .lv-btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:.26rem .7rem;
+      border-radius:999px;
+      border:1px solid rgba(0,255,255,.6);
+      background:rgba(0,0,0,.6);
+      font-size:.78rem;
+      cursor:pointer;
+      margin:.1rem .16rem .1rem 0;
+      color:var(--accent);
+      gap:.35rem;
+      transition:background var(--fast),color var(--fast),transform var(--fast),box-shadow var(--fast);
+    }
+    .lv-btn::before{
+      content:"⚡";
+      font-size:.7rem;
+      opacity:.85;
+    }
+    .lv-btn:hover{
+      background:var(--accent);
+      color:#050515;
+      transform:translateY(-1px);
+      box-shadow:0 0 14px rgba(0,255,255,.6);
+    }
+
+    /* Livro Vivo – Tabelista */
+    .md-tabelista{
+      margin:8px 0;
+      padding:8px 9px;
+      border-radius:10px;
+      background:rgba(0,0,0,.55);
+      border:1px solid rgba(255,255,255,.08);
+      font-size:.8rem;
+    }
+
+    /* Ajuste para telas menores */
+    @media (max-height:700px){
+      .svg-container{margin-top:24px;width:120px;height:120px;}
+      .oidual-panel-shell{margin-top:14px;}
+      .daily-card{margin-top:14px;}
+      .videos-section{margin-top:14px;}
+    }
+  </style>
+</head>
+<body>
+  <div id="particles-js"></div>
+
+  <button id="themeToggle" type="button" aria-label="Alternar tema"></button>
+
+  <div class="svg-container" aria-hidden="true">
+    <!-- Orb simbólico simples -->
+    <svg viewBox="0 0 200 200">
+      <defs>
+        <radialGradient id="orbGrad" cx="50%" cy="50%" r="60%">
+          <stop offset="0%" stop-color="#00f5ff" stop-opacity="1"/>
+          <stop offset="50%" stop-color="#7b88ff" stop-opacity=".8"/>
+          <stop offset="100%" stop-color="#050811" stop-opacity="1"/>
+        </radialGradient>
+      </defs>
+      <circle cx="100" cy="100" r="80" fill="url(#orbGrad)"/>
+      <circle cx="100" cy="100" r="52" fill="none" stroke="#ffffff" stroke-opacity=".4" stroke-width="2"/>
+      <path d="M40 110 C80 40 120 160 160 90" fill="none" stroke="#00f5ff" stroke-width="2" stroke-linecap="round" stroke-opacity=".9"/>
+      <circle cx="72" cy="86" r="4" fill="#00f5ff"/>
+      <circle cx="132" cy="114" r="4" fill="#ff4bff"/>
+    </svg>
+  </div>
+
+  <div id="assistantName">dual-Infodose · Chat Cinemático 78 · Roda-Viva</div>
+
+  <!-- Painel OiDual · sanfona -->
+  <section class="oidual-panel-shell">
+    <div class="oidual-card">
+      <div class="oidual-header">
+        <div>
+          <div class="oidual-title">Painel OiDual · Portal de Entrada</div>
+          <div style="font-size:.78rem;opacity:.8;">Cards, apps e trilhas conectadas ao seu ecossistema.</div>
+        </div>
+        <span class="oidual-pill">OiDual · Hub</span>
+      </div>
+
+      <div class="oidual-accordion">
+        <details open>
+          <summary>
+            Apps principais
+            <span class="badge">Stack Dual</span>
+          </summary>
+          <div class="oidual-body">
+            <p>Entrada rápida para os seus apps essenciais: Hub, ClientDocs, Cinemático 78, Oráculo, Infodocs.</p>
+            <ul>
+              <li>Hub1 / BlueCup · painel principal</li>
+              <li>Dual Chat 78 · IA + TTS + Webhook</li>
+              <li>ClientDocs · Recibos e OCR</li>
+              <li>Oráculo MetaLux · Intenções simbólicas</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>
+            Documentos & Livros
+            <span class="badge">Livro Vivo</span>
+          </summary>
+          <div class="oidual-body">
+            <p>Leitura em formato livro vivo, com botões, tabelista e callouts prontos para o seu parser.</p>
+            <ul>
+              <li>78 Capítulos – 78K0 – Do Início ao Início</li>
+              <li>Manifestos, prompts e treinamentos Infodose</li>
+            </ul>
+          </div>
+        </details>
+
+        <details>
+          <summary>
+            Rituais & Ativações
+            <span class="badge">Arquétipos</span>
+          </summary>
+          <div class="oidual-body">
+            <p>Trilhas, áudios e ativações de arquétipo sincronizadas com o Chat Cinemático.</p>
+            <ul>
+              <li>Despertar dos 12 arquétipos</li>
+              <li>Trilhas de aromas e foco</li>
+              <li>Integração futura com esfera Infodose</li>
+            </ul>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- Card do Dia -->
+  <section class="daily-card" id="dailyCard">
+    <div class="daily-top">
+      <div>
+        <div class="daily-label">Card do Dia · Infodose</div>
+        <div class="daily-main-title" id="dailyMainTitle">
+          Hoje a base é Madeira · criação em expansão
+        </div>
+      </div>
+      <div class="daily-tag" id="dailyTag">Arquétipo do dia: Criador</div>
+    </div>
+    <div class="daily-sub" id="dailySub">
+      Use o chat cinematográfico para transformar uma ideia em ação prática. Uma pergunta, uma trilha, um próximo passo.
+    </div>
+    <div class="daily-footer">
+      <span id="dailyExtra">Pulso 3·6·9 ativo · rotina leve</span>
+      <span class="daily-pill">Sugestão: mandar 1 intenção hoje</span>
+    </div>
+  </section>
+
+  <!-- Trilhas e Vídeos -->
+  <section class="videos-section">
+    <div class="videos-header">
+      <h2>Trilhas e ativações</h2>
+      <span>Clique para puxar pro chat</span>
+    </div>
+
+    <div class="video-hero">
+      <iframe
+        id="heroVideo"
+        src="https://www.youtube.com/embed/Bt_rLbMjJDk"
+        title="Trilhas Potencializadoras dos Aromas"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+      ></iframe>
+    </div>
+
+    <div class="video-rail" id="videoRail">
+      <article
+        class="video-card"
+        data-video-id="Bt_rLbMjJDk"
+        data-title="Trilhas Potencializadoras dos Aromas"
+        data-intent="Quero uma experiência com trilhas sonoras que potencializem os aromas e o foco."
+      >
+        <div
+          class="video-thumb"
+          style="background-image:url('https://img.youtube.com/vi/Bt_rLbMjJDk/hqdefault.jpg');"
+        ></div>
+        <div class="video-meta">
+          <div class="video-title">Trilhas Potencializadoras dos Aromas</div>
+          <div class="video-tag">Trilha · Foco + Aroma</div>
+        </div>
+      </article>
+
+      <article
+        class="video-card"
+        data-video-id="_0wVkryxanE"
+        data-title="Desperte a magia dos 12 arquétipos"
+        data-intent="Quero ativar a magia dos 12 arquétipos na minha rotina de hoje."
+      >
+        <div
+          class="video-thumb"
+          style="background-image:url('https://img.youtube.com/vi/_0wVkryxanE/hqdefault.jpg');"
+        ></div>
+        <div class="video-meta">
+          <div class="video-title">Desperte a magia dos 12 arquétipos</div>
+          <div class="video-tag">Ativação · Arquétipos</div>
+        </div>
+      </article>
+
+      <article
+        class="video-card"
+        data-video-id="Id2NI9tv1r4"
+        data-title="Infodose - Pra quem merece saber"
+        data-intent="Quero entender a essência da Infodose e como isso pode me ajudar hoje."
+      >
+        <div
+          class="video-thumb"
+          style="background-image:url('https://img.youtube.com/vi/Id2NI9tv1r4/hqdefault.jpg');"
+        ></div>
+        <div class="video-meta">
+          <div class="video-title">Infodose - Pra quem merece saber</div>
+          <div class="video-tag">Manifesto · Infodose</div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- CHAT · Render + Controles -->
+  <div class="response-container collapsed" id="response">
+    <div class="pages-wrapper" id="pagesWrapper">
+      <div class="response-block intro">
+        <span class="archetype-badge">Roda-Viva · Base Madeira</span>
+        <strong id="bootText" data-text="🧬 Iniciando... Pulso simbiótico detectado. Presença reconhecida.">
+          🧬 Iniciando... Pulso simbiótico detectado. Presença reconhecida.
+        </strong>
+        <p style="margin-top:.45rem;font-size:.83rem;opacity:.9;">
+          Clique em um bloco para ouvir. Clique de novo para enviar esse bloco como nova intenção para a IA.
+        </p>
+        <button class="block-tts-btn" type="button" aria-label="Ouvir bloco">◎</button>
+      </div>
+    </div>
+
+    <p class="footer-text" id="footerToggle">
+      <span class="footer-dot"></span>
+      <span>Expandir / recolher o Chat Cinemático 78</span>
+    </p>
+
+    <div class="response-controls">
+      <div class="control-buttons">
+        <button class="icon-btn" id="toggleIaConfigBtn" type="button" aria-label="Configurar IA">
+          ⚙️
+        </button>
+        <button class="icon-btn secondary" id="bookModeBtn" type="button" aria-label="Modo Livro Vivo">
+          📖
+        </button>
+      </div>
+      <span class="ia-status warn" id="iaStatusText">
+        Webhook não configurado · rodando em modo demonstrativo
+      </span>
+    </div>
+
+    <!-- Painel de Configuração IA -->
+    <div id="iaConfigPanel">
+      <div id="iaConfigHeader">
+        <span>Configuração de IA / Webhook</span>
+      </div>
+
+      <div class="ia-config-body">
+        <div class="ia-field">
+          <label for="webhookInput">URL do Webhook (N8n, Worker, etc.)</label>
+          <input
+            id="webhookInput"
+            type="url"
+            placeholder="https://seu-servidor.com/webhook"
+          />
+        </div>
+
+        <div class="ia-field">
+          <label for="tokenInput">Token / Chave (opcional, enviado no header Authorization)</label>
+          <input
+            id="tokenInput"
+            type="password"
+            placeholder="Bearer xxxxx..."
+          />
+        </div>
+
+        <div class="ia-field">
+          <label for="profileInput">Nome / Perfil do usuário</label>
+          <input
+            id="profileInput"
+            type="text"
+            placeholder="Seu nome ou apelido"
+          />
+        </div>
+      </div>
+
+      <div class="ia-actions">
+        <button class="pill-btn" id="saveIaConfigBtn" type="button">Salvar</button>
+        <button class="pill-btn secondary" id="resetIaConfigBtn" type="button">Limpar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input + Botões -->
+  <div class="input-container" id="inputContainer">
+    <button id="voiceBtn" type="button" aria-label="Gravar voz">
+      <!-- mic ícone simples -->
+      <svg viewBox="0 0 24 24">
+        <path d="M12 3a3 3 0 0 0-3 3v5a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/>
+        <path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>
+      </svg>
+    </button>
+
+    <input
+      id="userInput"
+      type="text"
+      autocomplete="off"
+      placeholder="Escreva sua intenção, ou clique num vídeo/bloco..."
+    />
+
+    <button id="sendBtn" type="button" aria-label="Enviar mensagem">
+      <span class="send-label">➤</span>
+    </button>
+  </div>
+
+  <!-- Login / placeholder (opcional) -->
+  <div class="login-container" id="loginContainer">
+    <h2>Entrar no Portal</h2>
+    <p>Use um apelido para personalizar as respostas do Chat Cinemático.</p>
+    <input id="loginNameInput" type="text" placeholder="Seu nome ou apelido" />
+    <button type="submit" id="confirmLoginBtn">Entrar</button>
+  </div>
+
+  <!-- Particles.js -->
+  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+
+  <script>
+    // ==========================
+    // PARTICLES
+    // ==========================
+    function initParticles(){
+      if(typeof particlesJS === "undefined") return;
+      particlesJS("particles-js",{
+        particles:{
+          number:{value:60,density:{enable:true,value_area:800}},
+          color:{value:["#00f5ff","#ff4bff","#ffffff"]},
+          shape:{type:"circle"},
+          opacity:{value:.4,random:true},
+          size:{value:3,random:true},
+          line_linked:{
+            enable:true,
+            distance:140,
+            color:"#00f5ff",
+            opacity:.25,
+            width:1
+          },
+          move:{
+            enable:true,
+            speed:1.2,
+            direction:"none",
+            random:false,
+            straight:false,
+            out_mode:"out",
+            bounce:false
+          }
+        },
+        interactivity:{
+          detect_on:"canvas",
+          events:{
+            onhover:{enable:true,mode:"grab"},
+            onclick:{enable:false,mode:"push"},
+            resize:true
+          },
+          modes:{
+            grab:{distance:140,line_linked:{opacity:.5}}
+          }
+        },
+        retina_detect:true
+      });
+    }
+
+    // ==========================
+    // STATE BÁSICO
+    // ==========================
+    const state = {
+      iaConfig: {
+        webhookUrl: "",
+        token: "",
+        profile: ""
+      },
+      lastClickedBlockId: null,
+      speakingBlockId: null,
+      recognition: null,
+      recognizing: false
+    };
+
+    const LS_KEY = "dualChat78_iaConfig";
+
+    function loadIaConfig(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        if(!raw) return;
+        const data = JSON.parse(raw);
+        if(data && typeof data === "object"){
+          state.iaConfig.webhookUrl = data.webhookUrl || "";
+          state.iaConfig.token      = data.token      || "";
+          state.iaConfig.profile    = data.profile    || "";
+        }
+      }catch(e){
+        console.warn("Erro ao carregar config IA:",e);
+      }
+    }
+
+    function saveIaConfig(){
+      try{
+        localStorage.setItem(LS_KEY, JSON.stringify(state.iaConfig));
+      }catch(e){
+        console.warn("Erro ao salvar config IA:",e);
+      }
+    }
+
+    // ==========================
+    // TEMA
+    // ==========================
+    function toggleTheme(){
+      const body = document.body;
+      const isAlt = body.classList.toggle("theme-alt");
+      if(isAlt){
+        // levemente mais escuro / violeta
+        document.documentElement.style.setProperty("--grad-a","#281dff");
+        document.documentElement.style.setProperty("--grad-b","#ff4bff");
+      }else{
+        document.documentElement.style.setProperty("--grad-a","#00f5ff");
+        document.documentElement.style.setProperty("--grad-b","#ff4bff");
+      }
+    }
+
+    // ==========================
+    // UTIL · TTS
+    // ==========================
+    function speakText(text){
+      if(!("speechSynthesis" in window)) return;
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = "pt-BR";
+      utter.rate = 1;
+      utter.pitch = 1;
+      window.speechSynthesis.speak(utter);
+    }
+
+    // ==========================
+    // CHAT · RENDER
+    // ==========================
+    function createBlock(text, type="middle", archetypeLabel=""){
+      const wrapper = document.getElementById("pagesWrapper");
+      const block = document.createElement("div");
+      block.className = "response-block " + type;
+
+      const blockId = "blk_" + Date.now() + "_" + Math.floor(Math.random()*9999);
+      block.dataset.blockId = blockId;
+
+      if(archetypeLabel){
+        const badge = document.createElement("span");
+        badge.className = "archetype-badge";
+        badge.textContent = archetypeLabel;
+        block.appendChild(badge);
+      }
+
+      const p = document.createElement("div");
+      p.style.whiteSpace = "pre-wrap";
+      p.textContent = text;
+      block.appendChild(p);
+
+      const ttsBtn = document.createElement("button");
+      ttsBtn.className = "block-tts-btn";
+      ttsBtn.type = "button";
+      ttsBtn.textContent = "◎";
+      ttsBtn.title = "Ouvir bloco";
+      block.appendChild(ttsBtn);
+
+      // Event: click no bloco → 1º clique fala, 2º clique envia
+      block.addEventListener("click", (ev)=>{
+        // se clicou no botão de TTS, só fala
+        if(ev.target === ttsBtn){
+          speakText(text);
+          return;
+        }
+
+        const currentId = block.dataset.blockId;
+        if(state.lastClickedBlockId === currentId){
+          // segundo clique → enviar pra IA
+          state.lastClickedBlockId = null;
+          block.classList.remove("clicked");
+          handleSend(text, "block");
+        }else{
+          state.lastClickedBlockId = currentId;
+          block.classList.add("clicked");
+          speakText(text);
+        }
+      });
+
+      ttsBtn.addEventListener("click",(ev)=>{
+        ev.stopPropagation();
+        speakText(text);
+      });
+
+      wrapper.appendChild(block);
+      wrapper.scrollTop = wrapper.scrollHeight;
+      return block;
+    }
+
+    function createUserBlock(text){
+      return createBlock(text, "user-pulse", "Usuário");
+    }
+
+    function createIaBlockFromText(text){
+      return createBlock(text, "middle", "Cinemático 78");
+    }
+
+    // ==========================
+    // CHAT · ENVIO / IA
+    // ==========================
+    async function callWebhook(prompt, sourceMeta){
+      const { webhookUrl, token, profile } = state.iaConfig;
+      if(!webhookUrl) return { ok:false, text:"Webhook não configurado." };
+
+      try{
+        const headers = { "Content-Type":"application/json" };
+        if(token){
+          headers["Authorization"] = token;
+        }
+
+        const body = {
+          prompt,
+          profile: profile || null,
+          source: sourceMeta || null,
+          app: "Dual Chat Cinemático 78"
+        };
+
+        const res = await fetch(webhookUrl,{
+          method:"POST",
+          headers,
+          body:JSON.stringify(body)
+        });
+
+        if(!res.ok){
+          return { ok:false, text:`Falha no webhook (${res.status}).` };
+        }
+
+        const json = await res.json().catch(()=>null);
+        if(json && (json.text || json.reply || json.message)){
+          const txt = json.text || json.reply || json.message;
+          return { ok:true, text:String(txt) };
+        }
+
+        return { ok:false, text:"Webhook respondeu sem campo de texto." };
+      }catch(e){
+        console.error(e);
+        return { ok:false, text:"Erro ao chamar webhook." };
+      }
+    }
+
+    async function handleSend(optionalText, source){
+      const inputEl = document.getElementById("userInput");
+      const text = (optionalText != null ? optionalText : inputEl.value).trim();
+      if(!text) return;
+
+      inputEl.value = "";
+      createUserBlock(text);
+
+      const statusEl = document.getElementById("iaStatusText");
+      const isConfigured = !!state.iaConfig.webhookUrl;
+      if(!isConfigured){
+        statusEl.textContent = "Webhook não configurado · resposta local";
+        statusEl.className = "ia-status warn";
+
+        const demoReply =
+`Recebi o seu pulso:
+
+"${text}"
+
+No momento estou em modo demonstrativo, sem webhook.
+Assim que você conectar seu N8n ou servidor, começo a responder em tempo real.`;
+
+        createIaBlockFromText(demoReply);
+        return;
+      }
+
+      statusEl.textContent = "Chamando webhook...";
+      statusEl.className = "ia-status";
+
+      const meta = {
+        kind: source || "manual",
+        video: source === "video" ? true : false
+      };
+
+      const pendingBlock = createIaBlockFromText("Gerando resposta com o webhook...");
+
+      const result = await callWebhook(text, meta);
+      let finalText;
+      if(result.ok){
+        statusEl.textContent = "IA conectada via webhook · ok";
+        statusEl.className = "ia-status ok";
+        finalText = result.text;
+      }else{
+        statusEl.textContent = result.text || "Erro ao chamar webhook";
+        statusEl.className = "ia-status err";
+        finalText =
+`Não consegui falar com o webhook agora.
+
+Detalhe:
+${result.text || "sem detalhes"}`;
+      }
+
+      // substitui texto do bloco pendente
+      const body = pendingBlock.querySelector("div");
+      if(body){
+        body.textContent = finalText;
+      }
+    }
+
+    // ==========================
+    // VÍDEOS · HERO + INTENÇÃO
+    // ==========================
+    function initVideosRail(){
+      const hero = document.getElementById("heroVideo");
+      const rail = document.getElementById("videoRail");
+      if(!hero || !rail) return;
+
+      rail.addEventListener("click",(ev)=>{
+        const card = ev.target.closest(".video-card");
+        if(!card) return;
+        const vid = card.dataset.videoId;
+        const title = card.dataset.title || "";
+        const intent = card.dataset.intent || "";
+
+        if(vid){
+          hero.src = "https://www.youtube.com/embed/" + vid;
+        }
+
+        const autoPrompt =
+`Quero uma rota cinematográfica baseada neste vídeo:
+
+Título: ${title}
+Intenção: ${intent || "Usar o conteúdo desse vídeo para melhorar meu dia hoje."}
+
+Traga uma resposta em blocos curtos, com próximos passos práticos.`;
+
+        createUserBlock("[Clicou em vídeo] " + title);
+        handleSend(autoPrompt, "video");
+      });
+    }
+
+    // ==========================
+    // THEME TOGGLE
+    // ==========================
+    function initThemeToggle(){
+      const btn = document.getElementById("themeToggle");
+      if(!btn) return;
+      btn.addEventListener("click", toggleTheme);
+    }
+
+    // ==========================
+    // FOOTER · COLAPSAR CHAT
+    // ==========================
+    function initFooterToggle(){
+      const footer = document.getElementById("footerToggle");
+      const response = document.getElementById("response");
+      if(!footer || !response) return;
+
+      footer.addEventListener("click",()=>{
+        response.classList.toggle("collapsed");
+      });
+    }
+
+    // ==========================
+    // IA CONFIG PANEL
+    // ==========================
+    function initIaConfig(){
+      const toggleBtn = document.getElementById("toggleIaConfigBtn");
+      const panel     = document.getElementById("iaConfigPanel");
+      const webhook   = document.getElementById("webhookInput");
+      const token     = document.getElementById("tokenInput");
+      const profile   = document.getElementById("profileInput");
+      const saveBtn   = document.getElementById("saveIaConfigBtn");
+      const resetBtn  = document.getElementById("resetIaConfigBtn");
+      const statusEl  = document.getElementById("iaStatusText");
+
+      if(!toggleBtn || !panel) return;
+
+      // preencher com valor salvo
+      webhook.value = state.iaConfig.webhookUrl || "";
+      token.value   = state.iaConfig.token      || "";
+      profile.value = state.iaConfig.profile    || "";
+
+      if(state.iaConfig.webhookUrl){
+        statusEl.textContent = "Webhook configurado · pronto pra responder";
+        statusEl.className = "ia-status ok";
+      }
+
+      toggleBtn.addEventListener("click",()=>{
+        panel.classList.toggle("active");
+      });
+
+      saveBtn.addEventListener("click",()=>{
+        state.iaConfig.webhookUrl = webhook.value.trim();
+        state.iaConfig.token      = token.value.trim();
+        state.iaConfig.profile    = profile.value.trim();
+        saveIaConfig();
+
+        if(state.iaConfig.webhookUrl){
+          statusEl.textContent = "Webhook configurado · pronto pra responder";
+          statusEl.className = "ia-status ok";
+        }else{
+          statusEl.textContent = "Webhook não configurado · rodando em modo demonstrativo";
+          statusEl.className = "ia-status warn";
+        }
+      });
+
+      resetBtn.addEventListener("click",()=>{
+        webhook.value = "";
+        token.value   = "";
+        profile.value = "";
+        state.iaConfig.webhookUrl = "";
+        state.iaConfig.token      = "";
+        state.iaConfig.profile    = "";
+        saveIaConfig();
+
+        statusEl.textContent = "Configuração limpa · modo demonstrativo";
+        statusEl.className = "ia-status warn";
+      });
+    }
+
+    // ==========================
+    // INPUT / SEND / ENTER
+    // ==========================
+    function initInput(){
+      const input = document.getElementById("userInput");
+      const send  = document.getElementById("sendBtn");
+
+      send.addEventListener("click", ()=>handleSend());
+      input.addEventListener("keydown",(ev)=>{
+        if(ev.key === "Enter" && !ev.shiftKey){
+          ev.preventDefault();
+          handleSend();
+        }
+      });
+    }
+
+    // ==========================
+    // VOZ (SPEECH RECOGNITION)
+    // ==========================
+    function initVoice(){
+      const btn = document.getElementById("voiceBtn");
+      const input = document.getElementById("userInput");
+      if(!btn || !input) return;
+
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if(!SR){
+        btn.style.display = "none";
+        return;
+      }
+
+      const rec = new SR();
+      rec.lang = "pt-BR";
+      rec.continuous = false;
+      rec.interimResults = false;
+
+      rec.onstart = ()=>{
+        state.recognizing = true;
+        btn.classList.add("speaking");
+      };
+      rec.onend = ()=>{
+        state.recognizing = false;
+        btn.classList.remove("speaking");
+      };
+      rec.onerror = ()=>{
+        state.recognizing = false;
+        btn.classList.remove("speaking");
+      };
+      rec.onresult = (ev)=>{
+        const result = ev.results[0][0].transcript;
+        input.value = (input.value ? input.value + " " : "") + result;
+        input.focus();
+      };
+
+      state.recognition = rec;
+
+      btn.addEventListener("click",()=>{
+        if(state.recognizing){
+          rec.stop();
+        }else{
+          try{ rec.start(); }catch(e){}
+        }
+      });
+    }
+
+    // ==========================
+    // BOOT
+    // ==========================
+    document.addEventListener("DOMContentLoaded", ()=>{
+      loadIaConfig();
+      initParticles();
+      initThemeToggle();
+      initFooterToggle();
+      initIaConfig();
+      initInput();
+      initVoice();
+      initVideosRail();
+
+      // só pra dar um pulso visual no bootText
+      const boot = document.getElementById("bootText");
+      if(boot) boot.classList.add("pulse");
+    });
+  </script>
+</body>
+</html>
