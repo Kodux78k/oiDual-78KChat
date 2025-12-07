@@ -7,33 +7,29 @@
 
   <meta name="theme-color" content="#050811" />
 
-  <!-- PWA / ICON / MANIFEST -->
-  <link rel="manifest" href="./manifest.webmanifest" />
-  <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-
   <!-- Fonte básica -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" />
 
   <style>
     :root{
-      /* Tokens base / tema por arquétipo (KOBLLUX Voices ajusta isso) */
+      /* Tokens base */
       --grad-a:#00f5ff;
       --grad-b:#ff4bff;
-      --accent:#00f5ff;
-      --accent-alt:#ff4bff;
-
       --bg:#050811;
       --panel:rgba(5,8,17,.96);
       --ink:#e4ecff;
       --muted:#9aa4c8;
 
-      --kob-voice-primary:var(--accent);
-      --kob-voice-secondary:var(--accent-alt);
+      --kob-voice-primary:#00f5ff;
+      --kob-voice-secondary:#ff4bff;
       --kob-voice-accent:#ffffff;
       --kob-voice-bg-soft:rgba(0,245,255,.12);
       --kob-voice-glow:0 0 18px rgba(0,245,255,.60);
 
       --text: var(--ink);
+      --accent: var(--kob-voice-primary);
+      --accent-soft: rgba(0,245,255,.18);
+      --accent-pink: var(--kob-voice-secondary);
       --danger:#ff4b6b;
 
       --radius-card:18px;
@@ -59,7 +55,6 @@
       overflow-x:hidden;
       overflow-y:auto;
       position:relative;
-      transition:background var(--med) ease;
     }
 
     body::before{
@@ -90,7 +85,6 @@
       filter:drop-shadow(0 0 25px rgba(0,255,255,.35));
       animation:orbFloat 12s ease-in-out infinite;
       z-index:1;
-      transition:filter var(--med) ease;
     }
     .svg-container svg{width:100%;height:100%;object-fit:contain;}
 
@@ -108,13 +102,12 @@
       z-index:1;
     }
 
-    /* PAINEL OIDUAL · CARD SANFONÁVEL + AUTOHIDE + TTS */
+    /* PAINEL OIDUAL · CARD SANFONÁVEL */
     .oidual-panel-shell{
       margin-top:18px;
       width:100%;
       max-width:520px;
       z-index:1;
-      transition:opacity .4s ease,transform .4s ease;
     }
     .oidual-card{
       border-radius:var(--radius-card);
@@ -183,7 +176,7 @@
       margin:2px 0;
     }
 
-    /* CARD DO DIA + AUTOHIDE + TTS */
+    /* CARD DO DIA */
     .daily-card{
       margin-top:18px;
       width:100%;
@@ -194,7 +187,6 @@
       border:1px solid rgba(0,255,255,.35);
       box-shadow:var(--shadow-soft);
       z-index:1;
-      transition:opacity .4s ease,transform .4s ease,background var(--med) ease,border-color var(--med) ease;
     }
     .daily-top{
       display:flex;
@@ -241,13 +233,12 @@
       font-size:.7rem;
     }
 
-    /* VÍDEOS – HERO + RAIL + AUTOHIDE + TTS */
+    /* VÍDEOS – HERO + RAIL */
     .videos-section{
       margin-top:18px;
       width:100%;
       max-width:520px;
       z-index:1;
-      transition:opacity .4s ease,transform .4s ease;
     }
     .videos-header{
       display:flex;
@@ -295,7 +286,7 @@
       background:rgba(0,0,0,.8);
       border:1px solid rgba(255,255,255,.1);
       cursor:pointer;
-      transition:transform var(--fast), box-shadow var(--fast), border-color var(--fast), background var(--fast),opacity var(--fast);
+      transition:transform var(--fast), box-shadow var(--fast), border-color var(--fast), background var(--fast);
     }
     .video-card:hover{
       transform:translateY(-2px);
@@ -328,23 +319,13 @@
       border-radius:999px;
     }
 
-    /* Estado de auto-hide */
-    .auto-hidden{
-      opacity:0;
-      transform:translateY(-6px) scale(.96);
-      pointer-events:none;
-    }
-
-    /* CHAT · RENDER RESPONSE
-       Ajuste importante: SEM sair do rodapé
-       => bottom fixo em 84px, tanto aberto quanto recolhido
-    */
+    /* CHAT · RENDER RESPONSE */
     .response-container{
       position:fixed;
       left:16px;
       right:16px;
-      bottom:84px; /* sempre acima do input */
-      max-height:calc(100vh - 220px);
+      bottom:160px;
+      max-height:calc(100vh - 260px);
       padding:12px;
       border-radius:20px;
       background:radial-gradient(circle at 0 0,var(--kob-voice-bg-soft),var(--panel));
@@ -360,7 +341,8 @@
     }
 
     .response-container.collapsed{
-      max-height:70px;
+      bottom:24px;
+      max-height:none;
       padding:6px 10px;
       background:radial-gradient(circle at 0 0,var(--kob-voice-bg-soft),rgba(0,0,0,.95));
     }
@@ -374,7 +356,7 @@
       font-size:.78rem;
       border-radius:999px;
     }
-    .response-container.collapsed + .input-container{display:flex;}
+    .response-container.collapsed + .input-container{display:none;}
 
     .pages-wrapper{
       width:100%;
@@ -694,7 +676,7 @@
       position:fixed;
       left:16px;
       right:16px;
-      bottom:16px;
+      bottom:84px;
       display:flex;
       gap:8px;
       align-items:center;
@@ -904,8 +886,13 @@
     }
 
     /* KDX · CARDS COLAPSÁVEIS GENÉRICOS */
-    .kdx-card-collapsible { position: relative; }
-    .kdx-card-header { cursor: pointer; position: relative; }
+    .kdx-card-collapsible {
+      position: relative;
+    }
+    .kdx-card-header {
+      cursor: pointer;
+      position: relative;
+    }
     .kdx-card-header::after {
       content: "⌃";
       position: absolute;
@@ -935,32 +922,6 @@
       pointer-events: none;
     }
 
-    /* Botão TTS para “card inteiro” (Painel, Card do dia, Vídeos) */
-    .card-tts-btn{
-      border:none;
-      border-radius:999px;
-      padding:4px 9px;
-      font-size:.72rem;
-      background:rgba(0,0,0,.7);
-      color:var(--accent);
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:4px;
-      cursor:pointer;
-      box-shadow:0 0 10px rgba(0,255,255,.35);
-      transition:background var(--fast),box-shadow var(--fast),transform var(--fast),opacity var(--fast);
-      opacity:.9;
-      white-space:nowrap;
-    }
-    .card-tts-btn span.icon{font-size:.75rem;}
-    .card-tts-btn:hover{
-      background:rgba(0,0,0,.95);
-      box-shadow:0 0 16px rgba(0,255,255,.7);
-      transform:translateY(-1px);
-      opacity:1;
-    }
-
     /* Ajuste para telas menores */
     @media (max-height:700px){
       .svg-container{margin-top:24px;width:120px;height:120px;}
@@ -970,35 +931,12 @@
     }
   </style>
 
-  <!-- KOBLLUX Voices + IDE + tema por arquétipo -->
+  <!-- KOBLLUX Voices + IDE -->
   <script id="KOBLLUX_VOICES_INTEGRATION">
   (()=>{
     const STORAGE_KEYS = {
       archetype: 'KOBLLUX_VOICE_ARCHETYPE',
       config: 'KOBLLUX_VOICES_CONFIG_JSON'
-    };
-
-    // Tema visual por arquétipo (orb + grad + accent)
-    const ARCHETYPE_THEMES = {
-      atlas:   { gradA:'#00f5ff', gradB:'#7b88ff', accent:'#00f5ff', glow:'rgba(0,245,255,.8)' },
-      nova:    { gradA:'#ff9a3c', gradB:'#ff4bff', accent:'#ff9a3c', glow:'rgba(255,154,60,.85)' },
-      vitalis: { gradA:'#00ff8a', gradB:'#00c6ff', accent:'#00ff8a', glow:'rgba(0,255,138,.85)' },
-      pulse:   { gradA:'#ff4b6b', gradB:'#ff9a9e', accent:'#ff4b6b', glow:'rgba(255,75,107,.9)' },
-      artemis: { gradA:'#00c6ff', gradB:'#0072ff', accent:'#00c6ff', glow:'rgba(0,198,255,.85)' },
-      serena:  { gradA:'#4facfe', gradB:'#00f2fe', accent:'#4facfe', glow:'rgba(79,172,254,.85)' },
-      kaos:    { gradA:'#ff4b1f', gradB:'#1fddff', accent:'#ff4b1f', glow:'rgba(255,75,31,.9)' },
-      genus:   { gradA:'#00f5ff', gradB:'#00c3ff', accent:'#00f5ff', glow:'rgba(0,245,255,.85)' },
-      lumine:  { gradA:'#fddb92', gradB:'#d1fdff', accent:'#ffd86f', glow:'rgba(255,216,111,.9)' },
-      solus:   { gradA:'#141e30', gradB:'#243b55', accent:'#8ab4ff', glow:'rgba(138,180,255,.8)' },
-      rhea:    { gradA:'#654ea3', gradB:'#eaafc8', accent:'#eaafc8', glow:'rgba(234,175,200,.85)' },
-      aion:    { gradA:'#0f2027', gradB:'#2c5364', accent:'#4fd1c5', glow:'rgba(79,209,197,.85)' },
-      kobllux: { gradA:'#00f5ff', gradB:'#ff4bff', accent:'#00f5ff', glow:'rgba(0,245,255,.9)' },
-      uno:     { gradA:'#ffffff', gradB:'#999999', accent:'#ffffff', glow:'rgba(255,255,255,.9)' },
-      dual:    { gradA:'#00f5ff', gradB:'#ff4bff', accent:'#00f5ff', glow:'rgba(0,245,255,.9)' },
-      trinity: { gradA:'#00f5ff', gradB:'#ffdd00', accent:'#ffdd00', glow:'rgba(255,221,0,.9)' },
-      infodose:{ gradA:'#00f5ff', gradB:'#00ff8a', accent:'#00ff8a', glow:'rgba(0,255,138,.9)' },
-      kodux:   { gradA:'#00f5ff', gradB:'#141e30', accent:'#00f5ff', glow:'rgba(0,245,255,.9)' },
-      default: { gradA:'#00f5ff', gradB:'#ff4bff', accent:'#00f5ff', glow:'rgba(0,245,255,.8)' }
     };
 
     // === BASE DE ARQUÉTIPOS / PERFIS DE VOZ ===
@@ -1040,18 +978,6 @@
       isSpeaking: false
     };
 
-    function applyThemeForArchetype(id){
-      const t = ARCHETYPE_THEMES[id] || ARCHETYPE_THEMES.default;
-      const root = document.documentElement;
-      root.style.setProperty('--grad-a', t.gradA);
-      root.style.setProperty('--grad-b', t.gradB);
-      root.style.setProperty('--accent', t.accent);
-      root.style.setProperty('--kob-voice-primary', t.accent);
-      root.style.setProperty('--kob-voice-secondary', t.gradB);
-      root.style.setProperty('--kob-voice-glow', `0 0 18px ${t.glow}`);
-      document.body.dataset.archetype = id;
-    }
-
     // === HELPERS DE STORAGE ====================================
     function loadStateFromStorage(){
       try{
@@ -1071,7 +997,6 @@
       try{
         localStorage.setItem(STORAGE_KEYS.archetype, id);
       }catch(e){}
-      applyThemeForArchetype(id);
       updateVoiceStatus();
     }
 
@@ -1092,6 +1017,7 @@
     // === RESOLVE ARQUÉTIPO / CONFIG FINAL ======================
     function getAllArchetypes(){
       if(!state.configOverrides || !Array.isArray(state.configOverrides)) return ARCHETYPES_BASE;
+      // Override completa via IDE se for array de objetos
       return state.configOverrides;
     }
 
@@ -1120,6 +1046,7 @@
         if(loose) return loose;
       }
 
+      // fallback: pt-BR → qualquer pt → primeira
       let v = voices.find(v => v.lang.toLowerCase().startsWith('pt-br'));
       if(v) return v;
       v = voices.find(v => v.lang.toLowerCase().startsWith('pt'));
@@ -1184,7 +1111,7 @@
     function updateVoiceStatus(msg, kind){
       const el = qs('#kobVoiceStatus');
       if(!el) return;
-      el.textContent = msg || `Arquétipo ativo: ${getArchetypeById(state.activeId).name}`;
+      el.textContent = msg || `Arquetipo ativo: ${getArchetypeById(state.activeId).name}`;
       el.classList.remove('ok','warn','err');
       if(kind) el.classList.add(kind);
       else el.classList.add('ok');
@@ -1205,10 +1132,12 @@
         if(block.dataset.kobTtsInit === '1') return;
         block.dataset.kobTtsInit = '1';
 
+        // Garante que teremos texto "limpo" pra fala
         if(!block.dataset.rawText){
           block.dataset.rawText = block.innerText || block.textContent || '';
         }
 
+        // Badge de arquétipo (se ainda não existir)
         if(!block.querySelector('.archetype-badge')){
           const badge = document.createElement('div');
           badge.className = 'archetype-badge';
@@ -1216,6 +1145,7 @@
           block.appendChild(badge);
         }
 
+        // Botão TTS no canto
         if(!block.querySelector('.block-tts-btn')){
           const btn = document.createElement('button');
           btn.type = 'button';
@@ -1227,6 +1157,7 @@
       });
     }
 
+    // Observer pra novos blocos renderizados pelo chat
     function attachBlocksObserver(){
       const pagesWrapper = qs('.pages-wrapper');
       if(!pagesWrapper) return;
@@ -1245,6 +1176,7 @@
       mo.observe(pagesWrapper, {childList:true, subtree:true});
     }
 
+    // Click handler global pro botão de TTS
     function attachTtsClickHandler(){
       document.addEventListener('click', ev=>{
         const ttsBtn = ev.target.closest('.block-tts-btn');
@@ -1260,6 +1192,7 @@
       });
     }
 
+    // voiceBtn: ler último bloco (atalho geral)
     function attachVoiceBtnHandler(){
       const voiceBtn = qs('#voiceBtn');
       if(!voiceBtn) return;
@@ -1280,6 +1213,7 @@
       });
     }
 
+    // === IDE / PAINEL DE CONFIG DENTRO DO #iaConfigPanel ======
     function buildVoiceIdePanel(){
       const panel = qs('#iaConfigPanel');
       if(!panel) return;
@@ -1291,6 +1225,7 @@
         panel.appendChild(body);
       }
 
+      // Campo select de arquétipo
       const fieldArch = document.createElement('div');
       fieldArch.className = 'ia-field';
       fieldArch.innerHTML = `
@@ -1311,11 +1246,13 @@
       select.addEventListener('change', ()=>{
         const newId = select.value;
         saveArchetype(newId);
+        // Atualizar badges existentes
         document.querySelectorAll('.archetype-badge').forEach(b=>{
           b.textContent = getArchetypeById(newId).name;
         });
       });
 
+      // Campo IDE (textarea com JSON)
       const fieldIde = document.createElement('div');
       fieldIde.className = 'ia-field';
       fieldIde.innerHTML = `
@@ -1333,6 +1270,7 @@
       const btnSave     = fieldIde.querySelector('#kobVoicesSaveBtn');
       const btnReset    = fieldIde.querySelector('#kobVoicesResetBtn');
 
+      // Carregar conteúdo da IDE (se existir override, usa; senão base)
       const currentCfg = state.configOverrides || ARCHETYPES_BASE;
       ideTextarea.value = JSON.stringify(currentCfg, null, 2);
 
@@ -1350,14 +1288,14 @@
         updateVoiceStatus('Config de vozes resetada para o padrão.', 'warn');
       });
 
+      // Status inicial
       updateVoiceStatus();
     }
 
+    // === INIT GERAL ============================================
     function init(){
       loadStateFromStorage();
       loadBrowserVoices();
-      applyThemeForArchetype(state.activeId);
-
       if('speechSynthesis' in window){
         window.speechSynthesis.onvoiceschanged = ()=>{
           loadBrowserVoices();
@@ -1370,6 +1308,7 @@
       attachVoiceBtnHandler();
       buildVoiceIdePanel();
 
+      // Expor API global básica (debug / extensões)
       window.KOBLLUXVoices = {
         speak: speakText,
         stop: stopSpeaking,
@@ -1377,8 +1316,7 @@
         setActiveArchetype: saveArchetype,
         getAllArchetypes,
         getRawConfig: ()=>ARCHETYPES_BASE,
-        getOverrides: ()=>state.configOverrides,
-        applyThemeForArchetype
+        getOverrides: ()=>state.configOverrides
       };
     }
 
@@ -1415,20 +1353,15 @@
 
   <div id="assistantName">dual-Infodose · Chat Cinemático 78 · Roda-Viva</div>
 
-  <!-- Painel OiDual · colapsável + auto-hide + TTS -->
-  <section class="oidual-panel-shell" data-collapsible="true" data-autohide="true" data-card-tts="true">
-    <div class="oidual-card">
+  <!-- Painel OiDual · marcado como colapsável -->
+  <section class="oidual-panel-shell">
+    <div class="oidual-card" data-collapsible="true">
       <div class="oidual-header">
         <div>
           <div class="oidual-title">Painel OiDual · Portal de Entrada</div>
           <div style="font-size:.78rem;opacity:.8;">Cards, apps e trilhas conectadas ao seu ecossistema.</div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-          <span class="oidual-pill">OiDual · Hub</span>
-          <button class="card-tts-btn" type="button" data-card-tts-btn>
-            <span class="icon">◎</span><span>Ouvir painel</span>
-          </button>
-        </div>
+        <span class="oidual-pill">OiDual · Hub</span>
       </div>
 
       <div class="oidual-accordion">
@@ -1480,8 +1413,8 @@
     </div>
   </section>
 
-  <!-- Card do Dia · colapsável + auto-hide + TTS -->
-  <section class="daily-card" id="dailyCard" data-collapsible="true" data-autohide="true" data-card-tts="true">
+  <!-- Card do Dia · colapsável -->
+  <section class="daily-card" id="dailyCard" data-collapsible="true">
     <div class="daily-top">
       <div>
         <div class="daily-label">Card do Dia · Infodose</div>
@@ -1489,12 +1422,7 @@
           Hoje a base é Madeira · criação em expansão
         </div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        <div class="daily-tag" id="dailyTag">Arquétipo do dia: Criador</div>
-        <button class="card-tts-btn" type="button" data-card-tts-btn>
-          <span class="icon">◎</span><span>Ouvir card</span>
-        </button>
-      </div>
+      <div class="daily-tag" id="dailyTag">Arquétipo do dia: Criador</div>
     </div>
     <div class="daily-sub" id="dailySub">
       Use o chat cinematográfico para transformar uma ideia em ação prática. Uma pergunta, uma trilha, um próximo passo.
@@ -1505,16 +1433,11 @@
     </div>
   </section>
 
-  <!-- Trilhas e Vídeos · colapsável + auto-hide + TTS -->
-  <section class="videos-section" data-collapsible="true" data-autohide="true" data-card-tts="true">
+  <!-- Trilhas e Vídeos · colapsável -->
+  <section class="videos-section" data-collapsible="true">
     <div class="videos-header">
-      <div>
-        <h2>Trilhas e ativações</h2>
-        <span>Clique para puxar pro chat</span>
-      </div>
-      <button class="card-tts-btn" type="button" data-card-tts-btn>
-        <span class="icon">◎</span><span>Ouvir seção</span>
-      </button>
+      <h2>Trilhas e ativações</h2>
+      <span>Clique para puxar pro chat</span>
     </div>
 
     <div class="video-hero">
@@ -1533,7 +1456,6 @@
         data-video-id="Bt_rLbMjJDk"
         data-title="Trilhas Potencializadoras dos Aromas"
         data-intent="Quero uma experiência com trilhas sonoras que potencializem os aromas e o foco."
-        data-card-description="Trilha para potencializar aromas, foco e imersão sensorial."
       >
         <div
           class="video-thumb"
@@ -1550,7 +1472,6 @@
         data-video-id="_0wVkryxanE"
         data-title="Desperte a magia dos 12 arquétipos"
         data-intent="Quero ativar a magia dos 12 arquétipos na minha rotina de hoje."
-        data-card-description="Vídeo de ativação dos 12 arquétipos para despertar funções mentais e emocionais."
       >
         <div
           class="video-thumb"
@@ -1567,7 +1488,6 @@
         data-video-id="Id2NI9tv1r4"
         data-title="Infodose - Pra quem merece saber"
         data-intent="Quero entender a essência da Infodose e como isso pode me ajudar hoje."
-        data-card-description="Manifesto da Infodose explicando a essência do projeto e das ativações."
       >
         <div
           class="video-thumb"
@@ -1615,7 +1535,7 @@
       </span>
     </div>
 
-    <!-- Painel de Configuração IA (+ IDE de Vozes plugado pelo script) -->
+    <!-- Painel de Configuração IA -->
     <div id="iaConfigPanel">
       <div id="iaConfigHeader">
         <span>Configuração de IA / Webhook</span>
@@ -1678,7 +1598,7 @@
     </button>
   </div>
 
-  <!-- Login / placeholder -->
+  <!-- Login / placeholder (se quiser usar depois) -->
   <div class="login-container" id="loginContainer">
     <h2>Entrar no Portal</h2>
     <p>Use um apelido para personalizar as respostas do Chat Cinemático.</p>
@@ -1736,6 +1656,7 @@
     const state = {
       iaConfig: { webhookUrl:"", token:"", profile:"" },
       lastClickedBlockId: null,
+      speakingBlockId: null,
       recognition: null,
       recognizing: false
     };
@@ -1764,7 +1685,7 @@
       }
     }
 
-    // THEME TOGGLE (secundário, além dos arquétipos)
+    // THEME
     function toggleTheme(){
       const body = document.body;
       const isAlt = body.classList.toggle("theme-alt");
@@ -1772,7 +1693,8 @@
         document.documentElement.style.setProperty("--grad-a","#281dff");
         document.documentElement.style.setProperty("--grad-b","#ff4bff");
       }else{
-        // volta pro que o arquétipo já setou; não força nada aqui
+        document.documentElement.style.setProperty("--grad-a","#00f5ff");
+        document.documentElement.style.setProperty("--grad-b","#ff4bff");
       }
     }
 
@@ -1782,8 +1704,8 @@
       btn.addEventListener("click", toggleTheme);
     }
 
-    // Helper central para falar usando KOBLLUX Voices
-    function speakWithKob(text){
+    // TTS (legacy simples – agora coexistindo com KOBLLUXVoices)
+    function speakText(text){
       if(window.KOBLLUXVoices && typeof window.KOBLLUXVoices.speak === "function"){
         window.KOBLLUXVoices.speak(text);
         return;
@@ -1825,11 +1747,9 @@
       ttsBtn.title = "Ouvir bloco";
       block.appendChild(ttsBtn);
 
-      block.dataset.rawText = text;
-
       block.addEventListener("click", (ev)=>{
         if(ev.target === ttsBtn){
-          speakWithKob(text);
+          speakText(text);
           return;
         }
         const currentId = block.dataset.blockId;
@@ -1840,13 +1760,13 @@
         }else{
           state.lastClickedBlockId = currentId;
           block.classList.add("clicked");
-          speakWithKob(text);
+          speakText(text);
         }
       });
 
       ttsBtn.addEventListener("click",(ev)=>{
         ev.stopPropagation();
-        speakWithKob(text);
+        speakText(text);
       });
 
       wrapper.appendChild(block);
@@ -1869,22 +1789,11 @@
         const headers = { "Content-Type":"application/json" };
         if(token){ headers["Authorization"] = token; }
 
-        const activeArch = window.KOBLLUXVoices?.getActiveArchetype
-          ? window.KOBLLUXVoices.getActiveArchetype()
-          : null;
-
         const body = {
           prompt,
           profile: profile || null,
           source: sourceMeta || null,
-          app: "Dual Chat Cinemático 78",
-          archetype: activeArch ? {
-            id: activeArch.id,
-            name: activeArch.name,
-            voice: activeArch.voice,
-            rate: activeArch.rate,
-            pitch: activeArch.pitch
-          } : null
+          app: "Dual Chat Cinemático 78"
         };
 
         const res = await fetch(webhookUrl,{
@@ -1979,7 +1888,6 @@ ${result.text || "sem detalhes"}`;
         const vid = card.dataset.videoId;
         const title = card.dataset.title || "";
         const intent = card.dataset.intent || "";
-        const desc = card.dataset.cardDescription || "";
 
         if(vid){
           hero.src = "https://www.youtube.com/embed/" + vid;
@@ -1989,7 +1897,6 @@ ${result.text || "sem detalhes"}`;
 `Quero uma rota cinematográfica baseada neste vídeo:
 
 Título: ${title}
-Descrição: ${desc || "Trilha/ativação Infodose conectada ao meu dia de hoje."}
 Intenção: ${intent || "Usar o conteúdo desse vídeo para melhorar meu dia hoje."}
 
 Traga uma resposta em blocos curtos, com próximos passos práticos.`;
@@ -1999,7 +1906,7 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       });
     }
 
-    // FOOTER / COLAPSO (sem tirar do rodapé)
+    // FOOTER / COLAPSO
     function initFooterToggle(){
       const footer = document.getElementById("footerToggle");
       const response = document.getElementById("response");
@@ -2079,7 +1986,7 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       });
     }
 
-    // VOZ (STT) – botão também pode ser usado pra ouvir últimos blocos pelo KOBLLUXVoices
+    // VOZ (STT) – ainda usando o mesmo botão, mas agora TTS tem prioridade visual via KOBLLUXVoices
     function initVoice(){
       const btn = document.getElementById("voiceBtn");
       const input = document.getElementById("userInput");
@@ -2087,7 +1994,7 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
 
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if(!SR){
-        // sem STT, botão fica só pra TTS global (já ligado no KOBLLUXVoices)
+        // Se não houver STT, deixamos só o TTS do KOBLLUXVoices
         return;
       }
 
@@ -2115,6 +2022,9 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       };
 
       state.recognition = rec;
+
+      // OBS: Se o usuário quiser só STT, dá pra trocar o handler depois;
+      // aqui mantemos o clique primário pro KOBLLUXVoices e o STT pode ser chamado manualmente se precisar.
     }
 
     // KDX · SANFONA GLOBAL
@@ -2141,51 +2051,10 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
         }
 
         card.classList.add('kdx-card-collapsible');
-        // Começa aberto; auto-hide cuida de sumir depois
-        // card.classList.add('kdx-collapsed');
+        card.classList.add('kdx-collapsed'); // começam fechados
 
         header.addEventListener('click', () => {
           card.classList.toggle('kdx-collapsed');
-        });
-      });
-    }
-
-    // AUTOHIDE de cards (Painel, Card do dia, Vídeos)
-    function setupAutoHide(el, delayMs){
-      let timer;
-      const hide = ()=> el.classList.add('auto-hidden');
-      const reset = ()=>{
-        el.classList.remove('auto-hidden');
-        if(timer) clearTimeout(timer);
-        timer = setTimeout(hide, delayMs);
-      };
-      ['mouseenter','touchstart','focusin'].forEach(evt=>{
-        el.addEventListener(evt, reset, {passive:true});
-      });
-      reset();
-    }
-
-    function initAutoHideCards(){
-      const cards = document.querySelectorAll('[data-autohide="true"]');
-      cards.forEach(el=> setupAutoHide(el, 90_000)); // 1,5 min
-    }
-
-    // TTS dos “cards inteiros”
-    function initCardTts(){
-      const sections = document.querySelectorAll('[data-card-tts="true"]');
-      sections.forEach(section=>{
-        const btn = section.querySelector('[data-card-tts-btn]');
-        if(!btn) return;
-        if(btn.dataset.kobCardTtsInit === '1') return;
-        btn.dataset.kobCardTtsInit = '1';
-
-        btn.addEventListener('click', (ev)=>{
-          ev.stopPropagation();
-          const label = section.querySelector('.oidual-title,.daily-main-title,.videos-header h2');
-          const title = label ? label.textContent.trim() : 'Seção';
-          const raw = section.innerText.replace(/\s+/g,' ').trim();
-          const text = `Lendo o card: ${title}. ${raw}`;
-          speakWithKob(text);
         });
       });
     }
@@ -2200,18 +2069,9 @@ Traga uma resposta em blocos curtos, com próximos passos práticos.`;
       initVoice();
       initVideosRail();
       initKdxGlobalCollapsibles();
-      initAutoHideCards();
-      initCardTts();
 
       const boot = document.getElementById("bootText");
       if(boot) boot.classList.add("pulse");
-
-      // Registrar Service Worker real
-      if('serviceWorker' in navigator){
-        navigator.serviceWorker.register('./sw.js').catch(err=>{
-          console.warn('SW falhou', err);
-        });
-      }
     });
   </script>
 </body>
